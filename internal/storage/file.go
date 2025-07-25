@@ -29,8 +29,8 @@ func (f *Storage) loadFile() (*os.File, error) {
 	}
 
 	return file, nil
-
 }
+
 func (f *Storage) Load() ([]string, error) {
 	var lines []string
 	file, err := os.Open(f.path)
