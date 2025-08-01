@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/amirmtaati/tempus/internal/core/task"
+	"github.com/amirmtaati/task/internal/core/task"
 	"regexp"
 	"strings"
 	"time"

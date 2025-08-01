@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/amirmtaati/tempus/internal/core/task"
+	"github.com/amirmtaati/task/internal/core/task"
 )
 
 type FileHandler interface {
