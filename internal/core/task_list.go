@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/amirmtaati/tempus/internal/storage/file"
+	"github.com/amirmtaati/task/internal/storage/file"
 	"strings"
 )
 
