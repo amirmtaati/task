@@ -1,8 +1,10 @@
 package main
 
-import "fmt"
-
+import (
+	"github.com/amirmtaati/task/internal/cli"
+)
 
 func main() {
-	fmt.Println("Hello Tempus!")
+	app := cli.NewApp("~/.todo.txt")
+	app.List()
 }
