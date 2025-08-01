@@ -10,7 +10,7 @@ import (
 
 type Command struct {
 	Name   string
-	Action func(args []string)
+	Action func(a *App)
 }
 
 type App struct {
@@ -43,11 +43,11 @@ func (a *App) Run() {
 	}
 
 	inputCmd := os.Args[1]
-	args := os.Args[2:]
+//	args := os.Args[2:]
 
 	for _, cmd := range a.commands {  // FIXED: Use lowercase field name
 		if cmd.Name == inputCmd {
-			cmd.Action(args)
+			cmd.Action(a)
 			return
 		}
 	}

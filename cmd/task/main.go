@@ -6,15 +6,16 @@ import (
 )
 
 func main() {
+	// Initialize the CLI app
 	app := cli.NewApp("~/.todo.txt")
 
+	fmt.Println("Task Manager initialized")
+	fmt.Println("\nListing sample task...")
 
+	app.Register(cli.Command{
+		Name: "list",
+		Action: cli.ListAction(app),
+	})
 
-	fmt.Println("calling List()")
-	tasks := app.List()
-	for _, task := range tasks {
-		println(task.Raw)
-	}
-
-	fmt.Println("Hello World")
+	app.Run()
 }
