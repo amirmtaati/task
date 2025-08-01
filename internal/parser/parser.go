@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/amirmtaati/task/internal/core/task"
+	"github.com/amirmtaati/task/internal/models"
 	"regexp"
 	"strings"
 	"time"
@@ -9,7 +9,7 @@ import (
 
 const emptyStr = ""
 
-type PatternHandler func(matches []string, task *task.Task, line string) (string, error)
+type PatternHandler func(matches []string, task *models.Task, line string) (string, error)
 
 type Parser struct {
 	priorityRgx       *regexp.Regexp
@@ -34,7 +34,7 @@ func NewParser() *Parser {
 }
 
 // Generic pattern processor
-func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *task.Task, handler PatternHandler) (string, error) {
+func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *models.Task, handler PatternHandler) (string, error) {
 	if !regex.MatchString(line) {
 		return line, nil
 	}
@@ -48,19 +48,19 @@ func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *task.Ta
 }
 
 // Pattern handlers
-func (p *Parser) handleCompleted(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleCompleted(matches []string, task *models.Task, line string) (string, error) {
 	task.Done = true
 	return p.completedRgx.ReplaceAllString(line, emptyStr), nil
 }
 
-func (p *Parser) handlePriority(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handlePriority(matches []string, task *models.Task, line string) (string, error) {
 	if len(matches) >= 3 {
 		task.Priority = matches[2]
 	}
 	return p.priorityRgx.ReplaceAllString(line, emptyStr), nil
 }
 
-func (p *Parser) handleCreationDate(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleCreationDate(matches []string, task *models.Task, line string) (string, error) {
 	if len(matches) >= 3 {
 		date, err := time.ParseInLocation("2006-01-02", matches[2], time.Local)
 		if err != nil {
@@ -71,7 +71,7 @@ func (p *Parser) handleCreationDate(matches []string, task *task.Task, line stri
 	return p.creationDateRgx.ReplaceAllString(line, emptyStr), nil
 }
 
-func (p *Parser) handleCompletionDate(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleCompletionDate(matches []string, task *models.Task, line string) (string, error) {
 	if len(matches) >= 2 {
 		date, err := time.ParseInLocation("2006-01-02", matches[1], time.Local)
 		if err != nil {
@@ -82,7 +82,7 @@ func (p *Parser) handleCompletionDate(matches []string, task *task.Task, line st
 	return p.completionDateRgx.ReplaceAllString(line, emptyStr), nil
 }
 
-func (p *Parser) handleContext(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleContext(matches []string, task *models.Task, line string) (string, error) {
 	// Find all context matches
 	allMatches := p.contextRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
@@ -104,7 +104,7 @@ func (p *Parser) handleContext(matches []string, task *task.Task, line string) (
 	return p.contextRgx.ReplaceAllString(line, "$1"), nil // Keep the whitespace, remove @context
 }
 
-func (p *Parser) handleProjects(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleProjects(matches []string, task *models.Task, line string) (string, error) {
 	// Find all project matches
 	allMatches := p.projectsRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
@@ -126,7 +126,7 @@ func (p *Parser) handleProjects(matches []string, task *task.Task, line string) 
 	return p.projectsRgx.ReplaceAllString(line, "$1"), nil // Keep the whitespace, remove +project
 }
 
-func (p *Parser) handleTags(matches []string, task *task.Task, line string) (string, error) {
+func (p *Parser) handleTags(matches []string, task *models.Task, line string) (string, error) {
 	// Initialize tags map if nil
 	if task.Tags == nil {
 		task.Tags = make(map[string]string)
@@ -157,9 +157,9 @@ func (p *Parser) getPatterns() map[*regexp.Regexp]PatternHandler {
 	}
 }
 
-func (p *Parser) Parse(line string) (*task.Task, error) {
+func (p *Parser) Parse(line string) (*models.Task, error) {
 	// Initialize task
-	task := task.NewTask()
+	task := models.NewTask()
 	line = strings.TrimSpace(line)
 	
 	// Store original raw line

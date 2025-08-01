@@ -1,11 +1,9 @@
 package cli
 
-import "fmt"
+import (
+"github.com/amirmtaati/task/internal/models"
+)
 
-func (a *App) List() {
-	tasks := a.taskList.GetTasks()
-
-	for _, task := range tasks {
-		fmt.Println(task.Raw)
-	}
+func (a *App) List() []models.Task {
+	return a.taskList.GetTasks()
 }

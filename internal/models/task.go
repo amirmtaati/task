@@ -1,4 +1,4 @@
-package task
+package models
 
 import (
 	"time"
@@ -18,6 +18,11 @@ type Task struct {
 	Tags           map[string]string
 }
 
+type TaskStorage interface {
+	Save([]Task) error
+	Load() ([]string, error)
+}
+
 func NewTask() *Task {
 	return &Task{
 		CreationDate: time.Now(),
@@ -25,7 +30,7 @@ func NewTask() *Task {
 }
 
 func (t *Task) String() string {
-		return t.Raw()
+		return t.Raw
 }
 
 
