@@ -1,3 +1,3 @@
 module github.com/amirmtaati/task
 
-go 1.23.5
+go 1.23
