@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/amirmtaati/task/internal/models"
@@ -34,6 +35,15 @@ func (tl *TaskList) AddTaskFromRaw(rawText string, p *parser.Parser) error {
 	tl.tasks = append(tl.tasks, *task)
 	tl.nextID++
 
+	return tl.save()
+}
+
+func (tl *TaskList) CompleteTask(id int) error {
+	if id < 1 || id > len(tl.tasks) {
+		return fmt.Errorf("task %d not found", id)
+	}
+
+	tl.tasks[id-1].Done = true
 	return tl.save()
 }
 
