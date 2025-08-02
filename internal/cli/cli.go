@@ -15,7 +15,7 @@ type Command struct {
 }
 
 type App struct {
-	commands []Command // FIXED: Field name should match usage
+	commands []Command
 	taskList *task.TaskList
 	parser   *parser.Parser
 	storage  *file.Storage
@@ -23,8 +23,8 @@ type App struct {
 
 func NewApp(path string) *App {
 	storage := file.NewFile(path)
-	taskList := task.NewTaskList(storage)
 	parser := parser.NewParser()
+	taskList := task.NewTaskList(storage)
 
 	return &App{
 		taskList: taskList,
@@ -34,29 +34,11 @@ func NewApp(path string) *App {
 }
 
 func (a *App) Init() error {
-	//a.taskList.LoadTasks()
-	lines, err := a.storage.Load()
-	if err != nil {
-		return err
-	}
-
-	for _, line := range lines {
-		task, err := a.parser.Parse(line)
-		if err != nil {
-			return err
-		}
-		a.taskList.AddTask(task)
-	}
-
-	return nil
-}
-
-func (a *App) SaveTasks() error {
-	return a.storage.Save(a.taskList.GetTasks())
+	return a.taskList.LoadFromStorage(a.parser)
 }
 
 func (a *App) Register(cmd Command) {
-	a.commands = append(a.commands, cmd) // FIXED: Use lowercase field name
+	a.commands = append(a.commands, cmd)
 }
 
 func (a *App) Run() {

@@ -8,21 +8,12 @@ import (
 func ListAction(args []string, a *App) {
 	tasks := a.taskList.GetTasks()
 	for _, task := range tasks {
-		fmt.Println(task.Todo)
+		fmt.Printf("[%d] %s\n", task.ID, task.Todo)
 	}
 }
 
+// MUCH SIMPLER - just delegate to TaskList
 func AddTaskHandler(args []string, a *App) error {
-	task, err := a.parser.Parse(strings.Join(args, " "))
-	if err != nil {
-		return err
-	}
-
-	a.taskList.AddTask(task)
-
-	if err := a.SaveTasks(); err != nil {
-		return err
-	}
-
-	return nil
+	rawText := strings.Join(args, " ")
+	return a.taskList.AddTaskFromRaw(rawText, a.parser)
 }

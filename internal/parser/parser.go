@@ -34,7 +34,30 @@ func NewParser() *Parser {
 	}
 }
 
-// Generic pattern processor
+func (p *Parser) PopulateTask(task *models.Task, line string) error {
+	line = strings.TrimSpace(line)
+
+	patterns := p.getPatterns()
+
+	// Process each pattern
+	for regex, handler := range patterns {
+		var err error
+		line, err = p.processPattern(regex, line, task, handler)
+		if err != nil {
+			return err
+		}
+	}
+
+	task.Todo = strings.TrimSpace(line)
+	return nil
+}
+
+func (p *Parser) Parse(line string) (*models.Task, error) {
+	task := models.NewTask(line)
+	err := p.PopulateTask(task, line)
+	return task, err
+}
+
 func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *models.Task, handler PatternHandler) (string, error) {
 	if !regex.MatchString(line) {
 		return line, nil
@@ -48,7 +71,6 @@ func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *models.
 	return handler(matches, task, line)
 }
 
-// Pattern handlers
 func (p *Parser) handleCompleted(matches []string, task *models.Task, line string) (string, error) {
 	task.Done = true
 	return p.completedRgx.ReplaceAllString(line, emptyStr), nil
@@ -84,12 +106,10 @@ func (p *Parser) handleCompletionDate(matches []string, task *models.Task, line 
 }
 
 func (p *Parser) handleContext(matches []string, task *models.Task, line string) (string, error) {
-	// Find all context matches
 	allMatches := p.contextRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
 		if len(match) >= 3 {
 			context := match[2]
-			// Avoid duplicates
 			found := false
 			for _, existing := range task.Contexts {
 				if existing == context {
@@ -102,16 +122,14 @@ func (p *Parser) handleContext(matches []string, task *models.Task, line string)
 			}
 		}
 	}
-	return p.contextRgx.ReplaceAllString(line, "$1"), nil // Keep the whitespace, remove @context
+	return p.contextRgx.ReplaceAllString(line, "$1"), nil
 }
 
 func (p *Parser) handleProjects(matches []string, task *models.Task, line string) (string, error) {
-	// Find all project matches
 	allMatches := p.projectsRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
 		if len(match) >= 3 {
 			project := match[2]
-			// Avoid duplicates
 			found := false
 			for _, existing := range task.Projects {
 				if existing == project {
@@ -124,16 +142,14 @@ func (p *Parser) handleProjects(matches []string, task *models.Task, line string
 			}
 		}
 	}
-	return p.projectsRgx.ReplaceAllString(line, "$1"), nil // Keep the whitespace, remove +project
+	return p.projectsRgx.ReplaceAllString(line, "$1"), nil
 }
 
 func (p *Parser) handleTags(matches []string, task *models.Task, line string) (string, error) {
-	// Initialize tags map if nil
 	if task.Tags == nil {
 		task.Tags = make(map[string]string)
 	}
 
-	// Find all tag matches
 	allMatches := p.tagsRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
 		if len(match) >= 3 {
@@ -145,7 +161,6 @@ func (p *Parser) handleTags(matches []string, task *models.Task, line string) (s
 	return p.tagsRgx.ReplaceAllString(line, emptyStr), nil
 }
 
-// Get all patterns with their handlers
 func (p *Parser) getPatterns() map[*regexp.Regexp]PatternHandler {
 	return map[*regexp.Regexp]PatternHandler{
 		p.completedRgx:      p.handleCompleted,
@@ -156,24 +171,4 @@ func (p *Parser) getPatterns() map[*regexp.Regexp]PatternHandler {
 		p.projectsRgx:       p.handleProjects,
 		p.tagsRgx:           p.handleTags,
 	}
-}
-
-func (p *Parser) Parse(line string) (*models.Task, error) {
-	line = strings.TrimSpace(line)
-	task := models.NewTask(line)
-
-	patterns := p.getPatterns()
-
-	// Process each pattern
-	for regex, handler := range patterns {
-		var err error
-		line, err = p.processPattern(regex, line, task, handler)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	task.Todo = strings.TrimSpace(line)
-
-	return task, nil
 }
