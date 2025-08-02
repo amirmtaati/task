@@ -37,5 +37,19 @@ func main() {
 		},
 	})
 
+	app.Register(cli.Command{
+		Name: "done",
+		Action: func(args []string, app *cli.App) {
+			cli.CompleteTaskHandler(args, app)
+		},
+	})
+
+	app.Register(cli.Command{
+		Name: "delete",
+		Action: func(args []string, app *cli.App) {
+			cli.DeleteTaskHandler(args, app)
+		},
+	})
+
 	app.Run()
 }
