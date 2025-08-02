@@ -23,32 +23,27 @@ func NewTaskList(storage models.TaskStorage) *TaskList {
 	}
 }
 
-// AddTaskFromRaw - This is the main public method for adding tasks
 func (tl *TaskList) AddTaskFromRaw(rawText string, p *parser.Parser) error {
-	// Create base task
 	task := models.NewTask(rawText)
 	task.ID = tl.nextID
 
-	// Parse the raw text to populate fields
 	if err := p.PopulateTask(task, rawText); err != nil {
 		return err
 	}
 
-	// Add to in-memory state
 	tl.tasks = append(tl.tasks, *task)
 	tl.nextID++
 
-	// Auto-save to maintain consistency
 	return tl.save()
 }
 
-// AddTask - For internal use when task is already parsed
-func (tl *TaskList) AddTask(task *models.Task) {
+func (tl *TaskList) AddTask(task *models.Task) error {
 	if task.ID == 0 {
 		task.ID = tl.nextID
 		tl.nextID++
 	}
 	tl.tasks = append(tl.tasks, *task)
+	return tl.save()
 }
 
 func (tl *TaskList) GetTasks() []models.Task {
@@ -61,7 +56,7 @@ func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
 		return err
 	}
 
-	tl.tasks = []models.Task{} // Clear existing
+	tl.tasks = []models.Task{}
 	tl.nextID = 1
 
 	for _, line := range lines {
