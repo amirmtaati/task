@@ -9,7 +9,9 @@ import (
 func ListAction(args []string, a *App) {
 	tasks := a.taskList.GetTasks()
 	for _, task := range tasks {
-		fmt.Printf("[%d] %s\n", task.ID, task.Todo)
+		if task.Raw != "" {
+			fmt.Printf("[%d] %s\n", task.ID, task.Todo)
+		}
 	}
 }
 
@@ -24,5 +26,14 @@ func CompleteTaskHandler(args []string, a *App) error {
 		return fmt.Errorf("error: %v", err)
 	}
 	a.taskList.CompleteTask(taskId)
+	return nil
+}
+
+func DeleteTaskHandler(args []string, a *App) error {
+	taskId, err := strconv.Atoi(args[0])
+	if err != nil {
+		return fmt.Errorf("error: %v", err)
+	}
+	a.taskList.DeleteTask(taskId)
 	return nil
 }

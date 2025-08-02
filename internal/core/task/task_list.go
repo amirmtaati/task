@@ -47,6 +47,15 @@ func (tl *TaskList) CompleteTask(id int) error {
 	return tl.save()
 }
 
+func (tl *TaskList) DeleteTask(id int) error {
+	if id < 1 || id > len(tl.tasks) {
+		return fmt.Errorf("task %d not found", id)
+	}
+
+	tl.tasks[id-1] = *models.NewTask("")
+	return tl.save()
+}
+
 func (tl *TaskList) AddTask(task *models.Task) error {
 	if task.ID == 0 {
 		task.ID = tl.nextID
