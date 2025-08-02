@@ -51,6 +51,10 @@ func (a *App) Init() error {
 	return nil
 }
 
+func (a *App) SaveTasks() error {
+	return a.storage.Save(a.taskList.GetTasks())
+}
+
 func (a *App) Register(cmd Command) {
 	a.commands = append(a.commands, cmd) // FIXED: Use lowercase field name
 }

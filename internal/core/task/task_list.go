@@ -21,13 +21,22 @@ func NewTaskList(storage models.TaskStorage) *TaskList {
 }
 
 func (tl *TaskList) AddTask(task *models.Task) {
-	newTask := models.Task{Todo: task.Todo,
-		Raw:      task.Raw,
-		Priority: task.Priority,
-		Projects: task.Projects,
-		Contexts: task.Contexts}
+	newTask := models.Task{
+		Todo:           task.Todo,
+		Raw:            task.Raw,
+		Priority:       task.Priority,
+		Projects:       task.Projects,
+		Contexts:       task.Contexts,
+		Tags:           task.Tags,
+		Done:           task.Done,
+		CreationDate:   task.CreationDate,
+		CompletionDate: task.CompletionDate,
+	}
 
-	tl.Tasks = append(tl.Tasks, newTask) // REMOVED the * dereference
+	tl.Tasks = append(tl.Tasks, newTask)
+	//tl.isDirty = true
+
+	// Auto-save after adding
 }
 
 func (tl *TaskList) String() string {

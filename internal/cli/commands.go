@@ -12,11 +12,17 @@ func ListAction(args []string, a *App) {
 	}
 }
 
-func AddTaskHandler(args []string, a *App) {
-	line := strings.Join(args, " ")
-	task, err := a.parser.Parse(line)
+func AddTaskHandler(args []string, a *App) error {
+	task, err := a.parser.Parse(strings.Join(args, " "))
 	if err != nil {
-		return
+		return err
 	}
+
 	a.taskList.AddTask(task)
+
+	if err := a.SaveTasks(); err != nil {
+		return err
+	}
+
+	return nil
 }
