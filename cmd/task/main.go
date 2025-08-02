@@ -2,19 +2,39 @@ package main
 
 import (
 	"fmt"
+
+	"os"
+	"path/filepath"
+
 	"github.com/amirmtaati/task/internal/cli"
 )
 
 func main() {
-	// Initialize the CLI app
-	app := cli.NewApp("~/.todo.txt")
+	home, err := os.UserHomeDir()
 
-	fmt.Println("Task Manager initialized")
-	fmt.Println("\nListing sample task...")
+	if err != nil {
+		fmt.Printf("Error getting home directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	todoPath := filepath.Join(home, ".todo.txt")
+
+	app := cli.NewApp(todoPath)
+	app.Init()
+	//args := os.Args[2:]
 
 	app.Register(cli.Command{
 		Name: "list",
-		Action: cli.ListAction(app),
+		Action: func(args []string, app *cli.App) {
+			cli.ListAction(args, app)
+		},
+	})
+
+	app.Register(cli.Command{
+		Name: "add",
+		Action: func(args []string, app *cli.App) {
+			cli.AddTaskHandler(args, app)
+		},
 	})
 
 	app.Run()

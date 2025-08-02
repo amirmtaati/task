@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"github.com/amirmtaati/task/internal/models"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/amirmtaati/task/internal/models"
 )
 
 const emptyStr = ""
@@ -38,12 +39,12 @@ func (p *Parser) processPattern(regex *regexp.Regexp, line string, task *models.
 	if !regex.MatchString(line) {
 		return line, nil
 	}
-	
+
 	matches := regex.FindStringSubmatch(line)
 	if len(matches) == 0 {
 		return line, nil
 	}
-	
+
 	return handler(matches, task, line)
 }
 
@@ -131,7 +132,7 @@ func (p *Parser) handleTags(matches []string, task *models.Task, line string) (s
 	if task.Tags == nil {
 		task.Tags = make(map[string]string)
 	}
-	
+
 	// Find all tag matches
 	allMatches := p.tagsRgx.FindAllStringSubmatch(line, -1)
 	for _, match := range allMatches {
@@ -158,15 +159,11 @@ func (p *Parser) getPatterns() map[*regexp.Regexp]PatternHandler {
 }
 
 func (p *Parser) Parse(line string) (*models.Task, error) {
-	// Initialize task
-	task := models.NewTask()
 	line = strings.TrimSpace(line)
-	
-	// Store original raw line
-	task.Raw = line
-	
+	task := models.NewTask(line)
+
 	patterns := p.getPatterns()
-	
+
 	// Process each pattern
 	for regex, handler := range patterns {
 		var err error
@@ -175,9 +172,8 @@ func (p *Parser) Parse(line string) (*models.Task, error) {
 			return nil, err
 		}
 	}
-	
-	// Set the remaining text as the todo description
+
 	task.Todo = strings.TrimSpace(line)
-	
+
 	return task, nil
 }

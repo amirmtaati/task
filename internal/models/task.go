@@ -23,15 +23,13 @@ type TaskStorage interface {
 	Load() ([]string, error)
 }
 
-func NewTask() *Task {
+func NewTask(raw string) *Task {
 	return &Task{
+		Raw:          raw,
 		CreationDate: time.Now(),
 	}
 }
 
 func (t *Task) String() string {
-		return t.Raw
+	return t.Raw
 }
-
-
-

@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+
 	"github.com/amirmtaati/task/internal/core/task"
 	"github.com/amirmtaati/task/internal/parser"
 	"github.com/amirmtaati/task/internal/storage/file"
@@ -10,11 +11,11 @@ import (
 
 type Command struct {
 	Name   string
-	Action func(a *App)
+	Action func(args []string, a *App)
 }
 
 type App struct {
-	commands []Command  // FIXED: Field name should match usage
+	commands []Command // FIXED: Field name should match usage
 	taskList *task.TaskList
 	parser   *parser.Parser
 	storage  *file.Storage
@@ -32,8 +33,26 @@ func NewApp(path string) *App {
 	}
 }
 
+func (a *App) Init() error {
+	//a.taskList.LoadTasks()
+	lines, err := a.storage.Load()
+	if err != nil {
+		return err
+	}
+
+	for _, line := range lines {
+		task, err := a.parser.Parse(line)
+		if err != nil {
+			return err
+		}
+		a.taskList.AddTask(task)
+	}
+
+	return nil
+}
+
 func (a *App) Register(cmd Command) {
-	a.commands = append(a.commands, cmd)  // FIXED: Use lowercase field name
+	a.commands = append(a.commands, cmd) // FIXED: Use lowercase field name
 }
 
 func (a *App) Run() {
@@ -43,14 +62,14 @@ func (a *App) Run() {
 	}
 
 	inputCmd := os.Args[1]
-//	args := os.Args[2:]
+	args := os.Args[2:]
 
-	for _, cmd := range a.commands {  // FIXED: Use lowercase field name
+	for _, cmd := range a.commands {
 		if cmd.Name == inputCmd {
-			cmd.Action(a)
+			cmd.Action(args, a)
 			return
 		}
 	}
-	
+
 	fmt.Printf("Unknown command: %s\n", inputCmd)
 }
