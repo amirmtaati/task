@@ -55,7 +55,7 @@ func (tl *TaskList) DeleteTask(id int) error {
 		return fmt.Errorf("task %d not found", id)
 	}
 
-	tl.tasks[id-1] = models.NewTask("")
+	delete(tl.tasks, id)
 	return tl.save()
 }
 
