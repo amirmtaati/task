@@ -33,21 +33,27 @@ func main() {
 	app.Register(cli.Command{
 		Name: "add",
 		Action: func(args []string, app *cli.App) {
-			cli.AddTaskHandler(args, app)
+			if err := cli.AddTaskHandler(args, app); err != nil {
+				fmt.Errorf("error while adding task: %d", err)
+			}
 		},
 	})
 
 	app.Register(cli.Command{
 		Name: "done",
 		Action: func(args []string, app *cli.App) {
-			cli.CompleteTaskHandler(args, app)
+			if err := cli.CompleteTaskHandler(args, app); err != nil {
+				fmt.Errorf("error while completing task: %d", err)
+			}
 		},
 	})
 
 	app.Register(cli.Command{
 		Name: "delete",
 		Action: func(args []string, app *cli.App) {
-			cli.DeleteTaskHandler(args, app)
+			if err := cli.DeleteTaskHandler(args, app); err != nil {
+				fmt.Errorf("error while deleting task: %d", err)
+			}
 		},
 	})
 
