@@ -21,20 +21,19 @@ func (f *Storage) Load() ([]string, error) {
 	var lines []string
 	file, err := os.Open(f.path)
 	if err != nil {
-		return lines, err // Return empty slice if file doesn't exist
+		return lines, err
 	}
-	defer file.Close() // ADDED: Always close file
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
 
-	return lines, scanner.Err() // FIXED: Return scanner error, not open error
+	return lines, scanner.Err()
 }
 
-func (f *Storage) Save(tasks []models.Task) error {
-	// FIXED: Open file for writing, not reading
+func (f *Storage) Save(tasks []*models.Task) error {
 	file, err := os.OpenFile(f.path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -42,7 +41,7 @@ func (f *Storage) Save(tasks []models.Task) error {
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
-	defer writer.Flush() // ADDED: Ensure data is written
+	defer writer.Flush()
 
 	for _, task := range tasks {
 		if _, err := writer.WriteString(task.String() + "\n"); err != nil {

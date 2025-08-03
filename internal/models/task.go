@@ -19,7 +19,7 @@ type Task struct {
 }
 
 type TaskStorage interface {
-	Save([]Task) error
+	Save([]*Task) error
 	Load() ([]string, error)
 }
 

@@ -2,6 +2,8 @@ package task
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/amirmtaati/task/internal/models"
@@ -11,14 +13,14 @@ import (
 const NewLine = "\n"
 
 type TaskList struct {
-	tasks   []models.Task
+	tasks   map[int]*models.Task
 	storage models.TaskStorage
 	nextID  int
 }
 
 func NewTaskList(storage models.TaskStorage) *TaskList {
 	return &TaskList{
-		tasks:   []models.Task{},
+		tasks:   map[int]*models.Task{},
 		storage: storage,
 		nextID:  1,
 	}
@@ -32,7 +34,8 @@ func (tl *TaskList) AddTaskFromRaw(rawText string, p *parser.Parser) error {
 		return err
 	}
 
-	tl.tasks = append(tl.tasks, *task)
+	//tl.tasks = append(tl.tasks, *task)
+	tl.tasks[task.ID] = task
 	tl.nextID++
 
 	return tl.save()
@@ -52,7 +55,7 @@ func (tl *TaskList) DeleteTask(id int) error {
 		return fmt.Errorf("task %d not found", id)
 	}
 
-	tl.tasks[id-1] = *models.NewTask("")
+	tl.tasks[id-1] = models.NewTask("")
 	return tl.save()
 }
 
@@ -61,12 +64,14 @@ func (tl *TaskList) AddTask(task *models.Task) error {
 		task.ID = tl.nextID
 		tl.nextID++
 	}
-	tl.tasks = append(tl.tasks, *task)
+	//tl.tasks = append(tl.tasks, *task)
+	tl.tasks[task.ID] = task
+
 	return tl.save()
 }
 
-func (tl *TaskList) GetTasks() []models.Task {
-	return tl.tasks
+func (tl *TaskList) GetTasks() []*models.Task {
+	return slices.Collect(maps.Values(tl.tasks))
 }
 
 func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
@@ -75,7 +80,7 @@ func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
 		return err
 	}
 
-	tl.tasks = []models.Task{}
+	tl.tasks = map[int]*models.Task{}
 	tl.nextID = 1
 
 	for _, line := range lines {
@@ -86,7 +91,7 @@ func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
 			return err
 		}
 
-		tl.tasks = append(tl.tasks, *task)
+		tl.tasks[task.ID] = task
 		tl.nextID++
 	}
 
@@ -94,7 +99,7 @@ func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
 }
 
 func (tl *TaskList) save() error {
-	return tl.storage.Save(tl.tasks)
+	return tl.storage.Save(tl.GetTasks())
 }
 
 func (tl *TaskList) String() string {
