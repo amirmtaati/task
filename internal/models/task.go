@@ -5,7 +5,7 @@ import (
 )
 
 type Task struct {
-	ID             int64
+	ID             int
 	Raw            string
 	Done           bool
 	Priority       string
@@ -25,7 +25,6 @@ type TaskStorage interface {
 
 func NewTask(raw string) *Task {
 	return &Task{
-		ID:           GenerateID(),
 		Raw:          raw,
 		CreationDate: time.Now(),
 	}

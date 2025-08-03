@@ -13,14 +13,14 @@ import (
 const NewLine = "\n"
 
 type TaskList struct {
-	tasks   map[int64]*models.Task
+	tasks   map[int]*models.Task
 	storage models.TaskStorage
 	nextID  int
 }
 
 func NewTaskList(storage models.TaskStorage) *TaskList {
 	return &TaskList{
-		tasks:   map[int64]*models.Task{},
+		tasks:   map[int]*models.Task{},
 		storage: storage,
 		nextID:  1,
 	}
@@ -28,7 +28,7 @@ func NewTaskList(storage models.TaskStorage) *TaskList {
 
 func (tl *TaskList) AddTaskFromRaw(rawText string, p *parser.Parser) error {
 	task := models.NewTask(rawText)
-	//task.ID = tl.nextID
+	task.ID = tl.nextID
 
 	if err := p.PopulateTask(task, rawText); err != nil {
 		return err
@@ -46,7 +46,7 @@ func (tl *TaskList) CompleteTask(id int) error {
 		return fmt.Errorf("task %d not found", id)
 	}
 
-	tl.tasks[int64(id)].Done = true
+	tl.tasks[id].Done = true
 	return tl.save()
 }
 
@@ -55,7 +55,7 @@ func (tl *TaskList) DeleteTask(id int) error {
 		return fmt.Errorf("task %d not found", id)
 	}
 
-	delete(tl.tasks, int64(id))
+	delete(tl.tasks, id)
 	return tl.save()
 }
 
@@ -80,12 +80,12 @@ func (tl *TaskList) LoadFromStorage(p *parser.Parser) error {
 		return err
 	}
 
-	tl.tasks = map[int64]*models.Task{}
+	tl.tasks = map[int]*models.Task{}
 	tl.nextID = 1
 
 	for _, line := range lines {
 		task := models.NewTask(line)
-		//task.ID = tl.nextID
+		task.ID = tl.nextID
 
 		if err := p.PopulateTask(task, line); err != nil {
 			return err
