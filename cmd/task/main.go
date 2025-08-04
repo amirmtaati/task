@@ -34,7 +34,7 @@ func main() {
 		Name: "add",
 		Action: func(args []string, app *cli.App) {
 			if err := cli.AddTaskHandler(args, app); err != nil {
-				fmt.Printf("error while adding task: %d", err)
+				fmt.Printf("error while adding task: %v", err)
 			}
 		},
 	})
@@ -43,7 +43,7 @@ func main() {
 		Name: "done",
 		Action: func(args []string, app *cli.App) {
 			if err := cli.CompleteTaskHandler(args, app); err != nil {
-				fmt.Printf("error while completing task: %d", err)
+				fmt.Printf("error while completing task: %v", err)
 			}
 		},
 	})
@@ -52,7 +52,7 @@ func main() {
 		Name: "delete",
 		Action: func(args []string, app *cli.App) {
 			if err := cli.DeleteTaskHandler(args, app); err != nil {
-				fmt.Printf("error while deleting task: %d", err)
+				fmt.Printf("error while deleting task: %v", err)
 			}
 		},
 	})
