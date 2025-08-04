@@ -2,26 +2,26 @@ package main
 
 import (
 	"fmt"
+	
 
 	"os"
-	"path/filepath"
 
 	"github.com/amirmtaati/task/internal/cli"
+	"flag"
 )
 
 func main() {
-	home, err := os.UserHomeDir()
+	var todoPath string
+	flag.StringVar(&todoPath, "file", "", "Path to todo.txt file")
+	flag.StringVar(&todoPath, "f", "", "Path to todo.txt file (shorthand)")
+	flag.Parse()
+	args := flag.Args()
 
-	if err != nil {
-		fmt.Printf("Error getting home directory: %v\n", err)
+	app := cli.NewApp()
+	if err := app.Init(todoPath); err != nil {
+		fmt.Printf("Error initializing app: %v\n", err)
 		os.Exit(1)
 	}
-
-	todoPath := filepath.Join(home, ".todo.txt")
-
-	app := cli.NewApp(todoPath)
-	app.Init()
-	//args := os.Args[2:]
 
 	app.Register(cli.Command{
 		Name: "list",
@@ -57,5 +57,5 @@ func main() {
 		},
 	})
 
-	app.Run()
+	app.Run(args)
 }
