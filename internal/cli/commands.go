@@ -37,3 +37,5 @@ func DeleteTaskHandler(args []string, a *App) error {
 	a.taskList.DeleteTask(taskId)
 	return nil
 }
+
+
