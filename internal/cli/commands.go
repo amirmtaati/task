@@ -11,6 +11,7 @@ func ListHandler(args []string, a *App) error {
 	for _, task := range tasks {
 		if task.Raw != "" {
 			fmt.Printf("[%d] %s\n", task.ID, task.Todo)
+			fmt.Printf("%t", task.Done)
 		}
 	}
 	return nil
@@ -39,22 +40,28 @@ func DeleteTaskHandler(args []string, a *App) error {
 	return nil
 }
 
+func FilterHandler(args []string, a *App) error {
+	filteredTasks := a.taskList.Filter(args)
+	for _, task := range filteredTasks {
+		if task.Raw != "" {
+			fmt.Printf("[%d] %s\n", task.ID, task.Todo)
+		}
+	}
+	return nil
+}
+
 func HelpHandler(args []string, a *App) error {
-	help := `Naval Fate.
+	help := `Task - A Simple CLI Task Manager for todo.txt
 Usage:
-  naval_fate ship new <name>...
-  naval_fate ship <name> move <x> <y> [--speed=<kn>]
-  naval_fate ship shoot <x> <y>
-  naval_fate mine (set|remove) <x> <y> [--moored|--drifting]
-  naval_fate -h | --help
-  naval_fate --version
+  task add <task>
+  task done <task_id> 
+  task delete <task_id>
+  task list
+  task -f=/path/to/todo.txt ...
+  task --file=/path/to/todo.txt ...
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --speed=<kn>  Speed in knots [default: 10].
-  --moored      Moored (anchored) mine.
-  --drifting    Drifting mine.`
+-f --file Set the location of your task file`
 
 	fmt.Println(help)
 	return nil

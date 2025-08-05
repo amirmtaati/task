@@ -107,6 +107,7 @@ func (a *App) getHandlers() map[string]CommandHandler {
 		"add":    AddTaskHandler,
 		"done":   CompleteTaskHandler,
 		"delete": DeleteTaskHandler,
+		"filter": FilterHandler,
 		"help": HelpHandler,
 	}
 }

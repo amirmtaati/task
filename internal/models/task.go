@@ -35,5 +35,8 @@ func GenerateID() int64 {
 }
 
 func (t *Task) String() string {
+	if t.Done {
+		return "x " + t.Raw
+	}
 	return t.Raw
 }

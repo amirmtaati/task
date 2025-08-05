@@ -11,9 +11,10 @@ import (
 )
 
 const NewLine = "\n"
+type Tasks map[int]*models.Task
 
 type TaskList struct {
-	tasks   map[int]*models.Task
+	tasks   Tasks
 	storage models.TaskStorage
 	nextID  int
 }
