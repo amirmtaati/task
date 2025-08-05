@@ -3,11 +3,13 @@ package cli
 import (
 	"fmt"
 	"os"
+	
 
 	"github.com/amirmtaati/task/internal/core/task"
 	"github.com/amirmtaati/task/internal/parser"
 	"github.com/amirmtaati/task/internal/storage/file"
 	"path/filepath"
+	"flag"
 )
 
 type CommandHandler func(args []string, a *App) error
@@ -22,6 +24,8 @@ type App struct {
 	taskList *task.TaskList
 	parser   *parser.Parser
 	storage  *file.Storage
+	path string
+	args []string
 }
 
 func NewApp() *App {
@@ -31,7 +35,13 @@ func NewApp() *App {
 	}
 }
 
-func (a *App) Init(path string) error {
+func (a *App) Init() error {
+	var path string
+	flag.StringVar(&path, "file", "", "Path to todo.txt file")
+	flag.StringVar(&path, "f", "", "Path to todo.txt file (shorthand)")
+	flag.Parse()
+	args := flag.Args()
+
 	var todoPath string
 	if path != "" {
 		todoPath = path
@@ -45,6 +55,8 @@ func (a *App) Init(path string) error {
 
 	a.storage = file.NewFile(todoPath)
 	a.taskList = task.NewTaskList(a.storage)
+	a.args = args
+	a.path = todoPath
 
 	return a.taskList.LoadFromStorage(a.parser)
 }
@@ -68,14 +80,14 @@ func (a *App) loadCommands() {
 	}
 }
 
-func (a *App) Run(inpArgs []string) {
+func (a *App) Run() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: task <command>")
+		HelpHandler([]string{}, a)
 		return
 	}
 
-	inputCmd := inpArgs[0]
-	args := inpArgs[1:]
+	inputCmd := a.args[0]
+	args := a.args[1:]
 
 	a.loadCommands()
 
@@ -95,5 +107,6 @@ func (a *App) getHandlers() map[string]CommandHandler {
 		"add":    AddTaskHandler,
 		"done":   CompleteTaskHandler,
 		"delete": DeleteTaskHandler,
+		"help": HelpHandler,
 	}
 }
