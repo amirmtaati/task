@@ -6,13 +6,14 @@ import (
 	"strings"
 )
 
-func ListAction(args []string, a *App) {
+func ListHandler(args []string, a *App) error {
 	tasks := a.taskList.GetTasks()
 	for _, task := range tasks {
 		if task.Raw != "" {
 			fmt.Printf("[%d] %s\n", task.ID, task.Todo)
 		}
 	}
+	return nil
 }
 
 func AddTaskHandler(args []string, a *App) error {

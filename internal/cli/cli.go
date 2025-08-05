@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"path/filepath"
 	"github.com/amirmtaati/task/internal/core/task"
 	"github.com/amirmtaati/task/internal/parser"
 	"github.com/amirmtaati/task/internal/storage/file"
+	"path/filepath"
 )
+
+type CommandHandler func(args []string, a *App) error
 
 type Command struct {
 	Name   string
@@ -25,7 +27,7 @@ type App struct {
 func NewApp() *App {
 	parser := parser.NewParser()
 	return &App{
-		parser:   parser,
+		parser: parser,
 	}
 }
 
@@ -43,7 +45,7 @@ func (a *App) Init(path string) error {
 
 	a.storage = file.NewFile(todoPath)
 	a.taskList = task.NewTaskList(a.storage)
-	
+
 	return a.taskList.LoadFromStorage(a.parser)
 }
 
@@ -51,40 +53,19 @@ func (a *App) Register(cmd Command) {
 	a.commands = append(a.commands, cmd)
 }
 
-func (a *App) loadCommands(args []string) {
-	a.Register(Command{
-		Name: "list",
-		Action: func(args []string, app *App) {
-			ListAction(args, app)
-		},
-	})
+func (a *App) loadCommands() {
+	commands := a.getHandlers()
 
-	a.Register(Command{
-		Name: "add",
-		Action: func(args []string, app *App) {
-			if err := AddTaskHandler(args, app); err != nil {
-				fmt.Printf("error while adding task: %v", err)
-			}
-		},
-	})
-
-	a.Register(Command{
-		Name: "done",
-		Action: func(args []string, app *App) {
-			if err := CompleteTaskHandler(args, app); err != nil {
-				fmt.Printf("error while completing task: %v", err)
-			}
-		},
-	})
-
-	a.Register(Command{
-		Name: "delete",
-		Action: func(args []string, app *App) {
-			if err := DeleteTaskHandler(args, app); err != nil {
-				fmt.Printf("error while deleting task: %v", err)
-			}
-		},
-	})
+	for command, handler := range commands {
+		a.Register(Command{
+			Name: command,
+			Action: func(args []string, app *App) {
+				if err := handler(args, app); err != nil {
+					fmt.Printf("error while running command: %v", err)
+				}
+			},
+		})
+	}
 }
 
 func (a *App) Run(inpArgs []string) {
@@ -96,7 +77,7 @@ func (a *App) Run(inpArgs []string) {
 	inputCmd := inpArgs[0]
 	args := inpArgs[1:]
 
-	a.loadCommands(inpArgs)
+	a.loadCommands()
 
 	for _, cmd := range a.commands {
 		if cmd.Name == inputCmd {
@@ -106,4 +87,13 @@ func (a *App) Run(inpArgs []string) {
 	}
 
 	fmt.Printf("Unknown command: %s\n", inputCmd)
+}
+
+func (a *App) getHandlers() map[string]CommandHandler {
+	return map[string]CommandHandler{
+		"list":   ListHandler,
+		"add":    AddTaskHandler,
+		"done":   CompleteTaskHandler,
+		"delete": DeleteTaskHandler,
+	}
 }
