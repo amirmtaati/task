@@ -51,6 +51,42 @@ func (a *App) Register(cmd Command) {
 	a.commands = append(a.commands, cmd)
 }
 
+func (a *App) loadCommands(args []string) {
+	a.Register(Command{
+		Name: "list",
+		Action: func(args []string, app *App) {
+			ListAction(args, app)
+		},
+	})
+
+	a.Register(Command{
+		Name: "add",
+		Action: func(args []string, app *App) {
+			if err := AddTaskHandler(args, app); err != nil {
+				fmt.Printf("error while adding task: %v", err)
+			}
+		},
+	})
+
+	a.Register(Command{
+		Name: "done",
+		Action: func(args []string, app *App) {
+			if err := CompleteTaskHandler(args, app); err != nil {
+				fmt.Printf("error while completing task: %v", err)
+			}
+		},
+	})
+
+	a.Register(Command{
+		Name: "delete",
+		Action: func(args []string, app *App) {
+			if err := DeleteTaskHandler(args, app); err != nil {
+				fmt.Printf("error while deleting task: %v", err)
+			}
+		},
+	})
+}
+
 func (a *App) Run(inpArgs []string) {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: task <command>")
@@ -59,6 +95,8 @@ func (a *App) Run(inpArgs []string) {
 
 	inputCmd := inpArgs[0]
 	args := inpArgs[1:]
+
+	a.loadCommands(inpArgs)
 
 	for _, cmd := range a.commands {
 		if cmd.Name == inputCmd {
